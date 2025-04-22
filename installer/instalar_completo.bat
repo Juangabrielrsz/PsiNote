@@ -1,12 +1,26 @@
 @echo off
-echo Instalando PsiNote...
+:: instalar_completo.bat
+:: Script mestre que instala PostgreSQL, configura o banco e instala o PsiNote
 
-REM Cria o executável
-cd /d %~dp0
-python setup_installer.py
+cls
+echo Iniciando instalador completo do PsiNote...
 
-REM Cria o atalho
-python criar_atalho.py
+:: Etapa 1: Instalar PostgreSQL
+call installer\instalar_postgres.bat
 
-echo Instalação concluída com sucesso!
+:: Aguarda o serviço iniciar completamente
+echo Aguardando inicialização do PostgreSQL...
+timeout /t 10 /nobreak
+
+:: Etapa 2: Criar banco e tabelas
+set PSQL_PATH="C:\Program Files\PostgreSQL\15\bin\psql.exe"
+%PSQL_PATH% -U postgres -d postgres -f installer\criar_banco.sql
+
+:: Etapa 3: Criar o executável
+python installer\setup_installer.py
+
+:: Etapa 4: Criar atalho na área de trabalho
+python installer\criar_atalho.py
+
+echo Instalacao concluida com sucesso!
 pause

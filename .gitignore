@@ -1,0 +1,31 @@
+# .gitignore para PsiNote
+
+# Ambientes virtuais
+venv/
+.env/
+
+# PyInstaller build
+build/
+dist/
+__pycache__/
+*.spec
+
+# Arquivos temporários
+*.pyc
+*.pyo
+*.log
+
+# Banco local (se aplicável)
+*.sqlite3
+
+# Instalador PostgreSQL
+installer/postgresql/postgresql-15.5-windows-x64.exe
+
+# Arquivos do sistema
+.DS_Store
+Thumbs.db
+
+# Arquivos de backup
+*~
+*.bak
+*.tmp
