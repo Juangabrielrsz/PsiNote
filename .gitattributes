@@ -1,0 +1,2 @@
+caminho/para/seu/arquivo filter=lfs diff=lfs merge=lfs -text
+installer/postgresql/postgresql-15.5-windows-x64.exe filter=lfs diff=lfs merge=lfs -text
