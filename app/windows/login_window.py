@@ -11,10 +11,12 @@ class LoginWindow(QWidget):
 
         self.usuario_input = QLineEdit()
         self.usuario_input.setPlaceholderText("Usuário")
+        self.usuario_input.setText("admin")  # <- valor preenchido
 
         self.senha_input = QLineEdit()
         self.senha_input.setPlaceholderText("Senha")
         self.senha_input.setEchoMode(QLineEdit.EchoMode.Password)
+        self.senha_input.setText("123")  # <- valor preenchido
 
         self.login_btn = QPushButton("Entrar")
         self.login_btn.clicked.connect(self.verificar_login)
@@ -26,7 +28,7 @@ class LoginWindow(QWidget):
 
         self.setLayout(layout)
 
-        # Adiciona a funcionalidade de pressionar Enter para logar
+        # Pressionar Enter para logar
         self.senha_input.returnPressed.connect(self.verificar_login)
 
     def verificar_login(self):
