@@ -26,5 +26,8 @@ Thumbs.db
 *~
 *.bak
 *.tmp
+
+# Ignora o instalador gerado
+PsiNote_Installer.exe
 # Garante que arquivos do instalador sejam incluídos
 !installer/postgresql/postgresql-15.5-windows-x64.exe
