@@ -13,7 +13,7 @@ OutputDir=.
 OutputBaseFilename=PsiNote_Installer
 
 [Files]
-Source: "dist\PsiNote.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "app\dist\PsiNote.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "icon.ico"; DestDir: "{app}"; Flags: ignoreversion
 Source: "installer\instalar_postgres.bat"; DestDir: "{app}\installer"; Flags: ignoreversion
 Source: "installer\criar_banco.sql"; DestDir: "{app}\installer"; Flags: ignoreversion
