@@ -26,3 +26,5 @@ Thumbs.db
 *~
 *.bak
 *.tmp
+# Garante que arquivos do instalador sejam incluídos
+!installer/postgresql/postgresql-15.5-windows-x64.exe
