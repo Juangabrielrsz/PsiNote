@@ -1,10 +1,8 @@
-# app/tabs/editar_paciente_window.py
-
-from PyQt5.QtWidgets import (
+from PyQt6.QtWidgets import (
     QWidget, QVBoxLayout, QLabel, QLineEdit,
     QPushButton, QMessageBox, QFormLayout
 )
-from PyQt5.QtCore import Qt
+from PyQt6.QtCore import Qt
 import psycopg2
 
 def conectar():
@@ -25,12 +23,11 @@ class EditarPacienteWindow(QWidget):
     def __init__(self, paciente_id, tabela_pacientes_tab):
         super().__init__()
         self.paciente_id = paciente_id
-        self.tabela_pacientes_tab = tabela_pacientes_tab  # para atualizar a tabela depois
+        self.tabela_pacientes_tab = tabela_pacientes_tab
         self.setWindowTitle("Editar Paciente")
         self.setGeometry(100, 100, 400, 300)
 
         layout = QVBoxLayout()
-
         form_layout = QFormLayout()
 
         self.nome_input = QLineEdit()
@@ -86,7 +83,6 @@ class EditarPacienteWindow(QWidget):
         layout.addLayout(btn_layout)
 
         self.setLayout(layout)
-
         self.carregar_dados()
 
     def carregar_dados(self):
@@ -134,7 +130,7 @@ class EditarPacienteWindow(QWidget):
                 conn.commit()
                 cur.close()
                 QMessageBox.information(self, "Sucesso", "Paciente atualizado com sucesso!")
-                self.tabela_pacientes_tab.carregar_dados()  # atualiza a tabela principal
+                self.tabela_pacientes_tab.carregar_dados()
                 self.close()
             except Exception as e:
                 QMessageBox.critical(self, "Erro", f"Erro ao salvar alterações: {e}")
@@ -145,9 +141,10 @@ class EditarPacienteWindow(QWidget):
         reply = QMessageBox.question(
             self, "Confirmar Exclusão",
             "Tem certeza que deseja excluir este paciente?",
-            QMessageBox.Yes | QMessageBox.No, QMessageBox.No
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+            QMessageBox.StandardButton.No
         )
-        if reply == QMessageBox.Yes:
+        if reply == QMessageBox.StandardButton.Yes:
             conn = conectar()
             if conn:
                 try:
