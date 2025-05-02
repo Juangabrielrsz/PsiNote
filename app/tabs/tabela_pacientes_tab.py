@@ -1,13 +1,11 @@
-# app/tabs/tabela_pacientes_tab.py
-
-from PyQt5.QtWidgets import (
+from PyQt6.QtWidgets import (
     QWidget, QVBoxLayout, QTableWidget, QTableWidgetItem,
     QPushButton, QHBoxLayout, QHeaderView, QMessageBox
 )
-from PyQt5.QtCore import Qt
+from PyQt6.QtCore import Qt
 from tabs.prontuario_window import ProntuarioWindow
-from tabs.editar_paciente_window import EditarPacienteWindow  # novo arquivo que você vai criar
-from styles.styles import apply_table_style  # estilo da tabela
+from tabs.editar_paciente_window import EditarPacienteWindow
+from styles.styles import apply_table_style
 
 import psycopg2
 
@@ -34,7 +32,7 @@ class TabelaPacientesTab(QWidget):
         reload_layout = QHBoxLayout()
         self.reload_btn = QPushButton("Recarregar")
         self.reload_btn.clicked.connect(self.carregar_dados)
-        reload_layout.addWidget(self.reload_btn, alignment=Qt.AlignRight)
+        reload_layout.addWidget(self.reload_btn, alignment=Qt.AlignmentFlag.AlignRight)
 
         self.tabela = QTableWidget()
         self.tabela.setColumnCount(8)
@@ -42,7 +40,7 @@ class TabelaPacientesTab(QWidget):
             "Nome", "Nascimento", "CPF", "Telefone",
             "Endereço", "E-mail", "Prontuário", "Editar"
         ])
-        self.tabela.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        self.tabela.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
 
         apply_table_style(self.tabela)
 
@@ -83,7 +81,7 @@ class TabelaPacientesTab(QWidget):
                     color: white;
                     font-size: 13px;
                     border-radius: 5px;
-                    padding: 5px;
+                    padding: 0px;
                 }
                 QPushButton:hover {
                     background-color: #45a049;
@@ -100,7 +98,7 @@ class TabelaPacientesTab(QWidget):
                     color: white;
                     font-size: 13px;
                     border-radius: 5px;
-                    padding: 5px;
+                    padding: 0px;
                 }
                 QPushButton:hover {
                     background-color: #1976D2;
@@ -113,16 +111,17 @@ class TabelaPacientesTab(QWidget):
         self.prontuario_window.show()
 
     def abrir_editar_paciente(self, paciente_id):
-        self.editar_window = EditarPacienteWindow(paciente_id, self)  # Passa self para poder recarregar depois
+        self.editar_window = EditarPacienteWindow(paciente_id, self)
         self.editar_window.show()
 
     def excluir_paciente(self, paciente_id):
         reply = QMessageBox.question(
             self, "Confirmar Exclusão",
             "Tem certeza que deseja excluir este paciente?",
-            QMessageBox.Yes | QMessageBox.No, QMessageBox.No
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+            QMessageBox.StandardButton.No
         )
-        if reply == QMessageBox.Yes:
+        if reply == QMessageBox.StandardButton.Yes:
             conn = conectar()
             if conn:
                 try:

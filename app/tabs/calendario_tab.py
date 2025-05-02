@@ -5,6 +5,21 @@ from PyQt6.QtWidgets import (
 )
 from PyQt6.QtGui import QTextCharFormat, QColor
 from PyQt6.QtCore import QDate
+import psycopg2
+
+def conectar():
+    try:
+        conn = psycopg2.connect(
+            dbname="psinote",
+            user="postgres",
+            password="123",
+            host="localhost",
+            port="5432"
+        )
+        return conn
+    except Exception as e:
+        print(f"Erro ao conectar ao banco de dados: {e}")
+        return None
 
 class ModernCalendar(QWidget):
     def __init__(self):
@@ -46,17 +61,41 @@ class ModernCalendar(QWidget):
 
         self.setLayout(self.layout)
 
+        self.carregar_consultas_do_banco()
+
     def apply_calendar_style(self, calendar_widget):
         calendar_widget.setStyleSheet("""
             QCalendarWidget {
                 background-color: #ffffff;
                 border: none;
                 border-radius: 12px;
+                
             }
+            QCalendarWidget QWidget#qt_calendar_navigationbar QToolButton:nth-child(2) {
+                margin-right: 10px;
+           CalendarWidget QToolButton#qt_calendar_prevmonth {
+    background-color: #4682B4;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 5px;
+    width: 28px;
+    height: 28px;
+    qproperty-icon: url(:/icons/arrow-left-white.svg);
+    qproperty-iconSize: 16px;
+}
+
+QCalendarWidget QToolButton#qt_calendar_prevmonth:hover {
+    background-color: #5F9EA0;
+}
+            QCalendar WidgetQToolButton#qt_calendar_nextmonth{
+                                      
+            }                                                                   
             QCalendarWidget QToolButton {
                 background-color: #4682B4;
-                color: white;
+                color: white;                                    
                 padding: 10px;
+                margin: 0px 12px;
                 border-radius: 6px;
             }
             QCalendarWidget QToolButton:hover {
@@ -72,10 +111,32 @@ class ModernCalendar(QWidget):
                 color: white;
             }
             QCalendarWidget::weekNumber {
-                background-color: #f0f0f0;
+                background-color: #a35f5f;
                 color: #4682B4;
             }
         """)
+
+    def carregar_consultas_do_banco(self):
+        conn = conectar()
+        if conn:
+            try:
+                cur = conn.cursor()
+                cur.execute("SELECT nome_paciente, data, hora FROM consultas")
+                resultados = cur.fetchall()
+                for nome, data, hora in resultados:
+                    qdate = QDate(data.year, data.month, data.day)
+                    hora_str = hora.strftime("%H:%M")
+                    evento = f"{nome} às {hora_str}"
+                    if qdate not in self.eventos_por_data:
+                        self.eventos_por_data[qdate] = []
+                    self.eventos_por_data[qdate].append(evento)
+                    self.formatar_evento(qdate)
+                cur.close()
+                self.exibir_eventos_do_dia(QDate.currentDate())
+            except Exception as e:
+                print(f"Erro ao carregar consultas: {e}")
+            finally:
+                conn.close()
 
     def adicionar_consulta(self):
         dialog = AdicionarConsultaDialog(self)
@@ -86,17 +147,30 @@ class ModernCalendar(QWidget):
 
             evento = f"{nome_paciente} às {hora.toString('HH:mm')}"
 
+            conn = conectar()
+            if conn:
+                try:
+                    cur = conn.cursor()
+                    cur.execute("INSERT INTO consultas (nome_paciente, data, hora) VALUES (%s, %s, %s)",
+                                (nome_paciente, data.toPyDate(), hora.toPyTime()))
+                    conn.commit()
+                    cur.close()
+                    QMessageBox.information(self, "Consulta Adicionada", f"Consulta para {nome_paciente} adicionada.")
+                except Exception as e:
+                    QMessageBox.critical(self, "Erro", f"Erro ao salvar no banco de dados: {e}")
+                finally:
+                    conn.close()
+
             if data not in self.eventos_por_data:
                 self.eventos_por_data[data] = []
             self.eventos_por_data[data].append(evento)
 
             self.formatar_evento(data)
-            QMessageBox.information(self, "Consulta Adicionada", f"Consulta para {nome_paciente} adicionada em {data.toString('dd/MM/yyyy')} às {hora.toString('HH:mm')}.")
             self.exibir_eventos_do_dia(data)
 
     def formatar_evento(self, data):
         format = QTextCharFormat()
-        format.setBackground(QColor("#87CEFA"))
+        format.setBackground(QColor("#87CEFA"))  # azul claro
         format.setForeground(QColor("#000000"))
         self.calendar.setDateTextFormat(data, format)
 

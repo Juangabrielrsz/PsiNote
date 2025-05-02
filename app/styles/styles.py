@@ -152,15 +152,16 @@ def apply_date_edit_style(date_edit):
     date_edit.setStyleSheet("""
         QDateEdit {
             background-color: #ffffff;
+            color: black;        
             border: 1px solid #d1d1d1;
             padding: 10px 15px;
             border-radius: 6px;
         }
-        QDateEdit:focus {
+        QDateEdit:focus { 
             border: 1px solid #4a6fa5;
             box-shadow: 0 0 0 2px rgba(74, 111, 165, 0.2);
         }
-        QDateEdit::drop-down {
+        QDateEdit::drop-down {              
             subcontrol-origin: padding;
             subcontrol-position: top right;
             width: 20px;
@@ -190,13 +191,13 @@ def apply_table_style(table):
     table.setStyleSheet("""
         QTableWidget {
             background-color: #ffffff;
-            border: 1px solid #d1d1d1;
-            border-radius: 6px;
+            border: 4px solid #d1d1d1;
+            border-radius: 10px;
             gridline-color: #eaeaea;
         }
         QTableWidget::item {
             color: #333333;  /* Texto escuro */
-            padding: 8px 12px;
+            padding: 2px 4px;
             border-bottom: 1px solid #eaeaea;
         }
         QTableWidget::item:selected {

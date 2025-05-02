@@ -91,13 +91,11 @@ class CadastroPacienteTab(QWidget):
         self.limpar_btn.setCursor(Qt.CursorShape.PointingHandCursor)
 
     def setup_validators(self):
-        cpf_validator = QRegularExpressionValidator(
-            QRegularExpression(r"\d{3}\.\d{3}\.\d{3}-\d{2}"), self.cpf_input)
-        self.cpf_input.setValidator(cpf_validator)
-        self.cpf_input.textEdited.connect(self.formatar_cpf)
+        # Removido o validator do CPF para permitir a digitação completa
+        self.cpf_input.textChanged.connect(self.formatar_cpf)
 
         email_validator = QRegularExpressionValidator(
-            QRegularExpression(r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"),
+            QRegularExpression(r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"),
             self.email_input)
         self.email_input.setValidator(email_validator)
 
@@ -106,18 +104,21 @@ class CadastroPacienteTab(QWidget):
         self.limpar_btn.clicked.connect(self.limpar_campos)
 
     def formatar_cpf(self, text):
-        text = text.replace(".", "").replace("-", "")[:11]
-        formatted = ""
+        cursor_pos = self.cpf_input.cursorPosition()
+        numeros = ''.join(filter(str.isdigit, text))[:11]
 
-        for i, char in enumerate(text):
-            if i in (3, 6):
-                formatted += "."
-            if i == 9:
-                formatted += "-"
-            formatted += char
+        formatted = ''
+        for i in range(len(numeros)):
+            if i == 3 or i == 6:
+                formatted += '.'
+            elif i == 9:
+                formatted += '-'
+            formatted += numeros[i]
 
+        self.cpf_input.blockSignals(True)
         self.cpf_input.setText(formatted)
-        self.cpf_input.setCursorPosition(len(formatted))
+        self.cpf_input.blockSignals(False)
+        self.cpf_input.setCursorPosition(min(cursor_pos + 1, len(formatted)))
 
     def validar_campos(self):
         campos = {
