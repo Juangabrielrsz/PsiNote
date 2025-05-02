@@ -25,7 +25,8 @@ CREATE TABLE prontuarios (
 -- Tabela de consultas
 CREATE TABLE consultas (
     id SERIAL PRIMARY KEY,
-    paciente_id INTEGER REFERENCES pacientes(id) ON DELETE CASCADE,
+    nome_paciente VARCHAR(100) NOT NULL,
     data DATE NOT NULL,
     hora TIME NOT NULL
 );
+

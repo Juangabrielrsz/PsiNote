@@ -69,11 +69,33 @@ class ModernCalendar(QWidget):
                 background-color: #ffffff;
                 border: none;
                 border-radius: 12px;
+                
             }
+            QCalendarWidget QWidget#qt_calendar_navigationbar QToolButton:nth-child(2) {
+                margin-right: 10px;
+           CalendarWidget QToolButton#qt_calendar_prevmonth {
+    background-color: #4682B4;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 5px;
+    width: 28px;
+    height: 28px;
+    qproperty-icon: url(:/icons/arrow-left-white.svg);
+    qproperty-iconSize: 16px;
+}
+
+QCalendarWidget QToolButton#qt_calendar_prevmonth:hover {
+    background-color: #5F9EA0;
+}
+            QCalendar WidgetQToolButton#qt_calendar_nextmonth{
+                                      
+            }                                                                   
             QCalendarWidget QToolButton {
                 background-color: #4682B4;
-                color: white;
+                color: white;                                    
                 padding: 10px;
+                margin: 0px 12px;
                 border-radius: 6px;
             }
             QCalendarWidget QToolButton:hover {
@@ -89,7 +111,7 @@ class ModernCalendar(QWidget):
                 color: white;
             }
             QCalendarWidget::weekNumber {
-                background-color: #f0f0f0;
+                background-color: #a35f5f;
                 color: #4682B4;
             }
         """)

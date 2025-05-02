@@ -81,7 +81,7 @@ class TabelaPacientesTab(QWidget):
                     color: white;
                     font-size: 13px;
                     border-radius: 5px;
-                    padding: 5px;
+                    padding: 0px;
                 }
                 QPushButton:hover {
                     background-color: #45a049;
@@ -98,7 +98,7 @@ class TabelaPacientesTab(QWidget):
                     color: white;
                     font-size: 13px;
                     border-radius: 5px;
-                    padding: 5px;
+                    padding: 0px;
                 }
                 QPushButton:hover {
                     background-color: #1976D2;
