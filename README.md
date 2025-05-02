@@ -120,28 +120,12 @@ PsiNote_Installer.exe
 
 ---
 
-## ☁️ Upload no Google Drive
-
-Para compartilhar o instalador:
-
-1. Faça upload de `PsiNote_Installer.exe` no [Google Drive](https://drive.google.com)
-2. Clique com o botão direito > Compartilhar
-3. Defina como “Qualquer pessoa com o link”
-4. Copie o link e compartilhe
-
----
-
-## 📸 Capturas de Tela
-
-> *(Adicione aqui screenshots da interface, se desejar)*
-
----
 
 ## 👨‍💻 Autor
 
 **Juan Gabriel**  
 Desenvolvedor e entusiasta de soluções para psicologia.  
-[LinkedIn](https://linkedin.com) · [GitHub](https://github.com/Juangabrielrsz)
+[LinkedIn]([https://linkedin.co](https://www.linkedin.com/in/juangabrieldev/)) · [GitHub](https://github.com/Juangabrielrsz)
 
 ---
 
