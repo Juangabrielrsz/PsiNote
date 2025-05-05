@@ -7,7 +7,7 @@ from tabs.tabela_pacientes_tab import TabelaPacientesTab
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("PsiFlow")
+        self.setWindowTitle("PsiNote")
         self.setMinimumSize(800, 600)
 
         self.stacked_widget = QStackedWidget()
