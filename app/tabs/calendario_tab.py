@@ -5,17 +5,12 @@ from PyQt6.QtWidgets import (
 )
 from PyQt6.QtGui import QTextCharFormat, QColor
 from PyQt6.QtCore import QDate
-import psycopg2
+import sqlite3
+
 
 def conectar():
     try:
-        conn = psycopg2.connect(
-            dbname="psinote",
-            user="postgres",
-            password="123",
-            host="localhost",
-            port="5432"
-        )
+        conn = sqlite3.connect("psinote.db")  # Cria o arquivo se não existir
         return conn
     except Exception as e:
         print(f"Erro ao conectar ao banco de dados: {e}")
