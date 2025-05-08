@@ -30,4 +30,4 @@ Thumbs.db
 # Ignora o instalador gerado
 PsiNote_Installer.exe
 # Garante que arquivos do instalador sejam incluídos
-!installer/postgresql/postgresql-15.5-windows-x64.exe
+!installer\python\python-3.12.10-amd64.exe

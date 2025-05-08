@@ -4,13 +4,15 @@ from PyQt6.QtWidgets import (
     QMessageBox, QListWidget, QHBoxLayout
 )
 from PyQt6.QtGui import QTextCharFormat, QColor
-from PyQt6.QtCore import QDate
+from PyQt6.QtCore import QDate, QTime
 import sqlite3
-
+import os
 
 def conectar():
     try:
-        conn = sqlite3.connect("psinote.db")  # Cria o arquivo se não existir
+        # Caminho absoluto para psinote.db na raiz
+        caminho_banco = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'psinote.db'))
+        conn = sqlite3.connect(caminho_banco)
         return conn
     except Exception as e:
         print(f"Erro ao conectar ao banco de dados: {e}")
@@ -64,33 +66,12 @@ class ModernCalendar(QWidget):
                 background-color: #ffffff;
                 border: none;
                 border-radius: 12px;
-                
             }
-            QCalendarWidget QWidget#qt_calendar_navigationbar QToolButton:nth-child(2) {
-                margin-right: 10px;
-           CalendarWidget QToolButton#qt_calendar_prevmonth {
-    background-color: #4682B4;
-    color: white;
-    border: none;
-    border-radius: 6px;
-    padding: 5px;
-    width: 28px;
-    height: 28px;
-    qproperty-icon: url(:/icons/arrow-left-white.svg);
-    qproperty-iconSize: 16px;
-}
-
-QCalendarWidget QToolButton#qt_calendar_prevmonth:hover {
-    background-color: #5F9EA0;
-}
-            QCalendar WidgetQToolButton#qt_calendar_nextmonth{
-                                      
-            }                                                                   
             QCalendarWidget QToolButton {
                 background-color: #4682B4;
-                color: white;                                    
-                padding: 10px;
-                margin: 0px 12px;
+                color: white;
+                padding: 6px;
+                margin: 4px;
                 border-radius: 6px;
             }
             QCalendarWidget QToolButton:hover {
@@ -98,16 +79,12 @@ QCalendarWidget QToolButton#qt_calendar_prevmonth:hover {
             }
             QCalendarWidget::item {
                 color: #333333;
-                padding: 10px;
-                border-radius: 6px;
+                padding: 8px;
+                border-radius: 4px;
             }
             QCalendarWidget::item:selected {
                 background-color: #1E90FF;
                 color: white;
-            }
-            QCalendarWidget::weekNumber {
-                background-color: #a35f5f;
-                color: #4682B4;
             }
         """)
 
@@ -118,9 +95,8 @@ QCalendarWidget QToolButton#qt_calendar_prevmonth:hover {
                 cur = conn.cursor()
                 cur.execute("SELECT nome_paciente, data, hora FROM consultas")
                 resultados = cur.fetchall()
-                for nome, data, hora in resultados:
-                    qdate = QDate(data.year, data.month, data.day)
-                    hora_str = hora.strftime("%H:%M")
+                for nome, data_str, hora_str in resultados:
+                    qdate = QDate.fromString(data_str, "yyyy-MM-dd")
                     evento = f"{nome} às {hora_str}"
                     if qdate not in self.eventos_por_data:
                         self.eventos_por_data[qdate] = []
@@ -146,8 +122,8 @@ QCalendarWidget QToolButton#qt_calendar_prevmonth:hover {
             if conn:
                 try:
                     cur = conn.cursor()
-                    cur.execute("INSERT INTO consultas (nome_paciente, data, hora) VALUES (%s, %s, %s)",
-                                (nome_paciente, data.toPyDate(), hora.toPyTime()))
+                    cur.execute("INSERT INTO consultas (nome_paciente, data, hora) VALUES (?, ?, ?)",
+                                (nome_paciente, data.toString("yyyy-MM-dd"), hora.toString("HH:mm")))
                     conn.commit()
                     cur.close()
                     QMessageBox.information(self, "Consulta Adicionada", f"Consulta para {nome_paciente} adicionada.")
@@ -203,6 +179,7 @@ QCalendarWidget QToolButton#qt_calendar_prevmonth:hover {
 
             self.exibir_eventos_do_dia(data)
 
+
 class AdicionarConsultaDialog(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -237,6 +214,7 @@ class AdicionarConsultaDialog(QDialog):
             return
         super().accept()
 
+
 class EditarConsultaDialog(QDialog):
     def __init__(self, nome_paciente, hora_str, parent=None):
         super().__init__(parent)
@@ -251,7 +229,7 @@ class EditarConsultaDialog(QDialog):
         layout.addRow("Nome do paciente:", self.nome_input)
 
         self.hora_input = QTimeEdit()
-        self.hora_input.setTime(self.hora_input.time().fromString(hora_str, "HH:mm"))
+        self.hora_input.setTime(QTime.fromString(hora_str, "HH:mm"))
         layout.addRow("Hora da consulta:", self.hora_input)
 
         botoes_layout = QHBoxLayout()
