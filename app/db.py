@@ -3,43 +3,28 @@ import os
 
 def conectar():
     try:
-        # Garante que o diretório do banco existe
+        # Caminho absoluto para o banco existente na raiz do projeto
         base_dir = os.path.dirname(os.path.abspath(__file__))
-        caminho_banco = os.path.join(base_dir, "psinote.db")
+        db_path = os.path.abspath(os.path.join(base_dir, "..", "psinote.db"))
 
-        # Conecta ao banco SQLite
-        conn = sqlite3.connect(caminho_banco)
+        if not os.path.exists(db_path):
+            print(f"❌ Banco de dados não encontrado em {db_path}")
+            return None
 
-        # Cria as tabelas se ainda não existirem
+        conn = sqlite3.connect(db_path)
+        print("✅ Conectado ao banco com sucesso!")
+
+        # Verifica se a tabela 'pacientes' existe
         cursor = conn.cursor()
-        cursor.execute("""
-            CREATE TABLE IF NOT EXISTS pacientes (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                nome TEXT NOT NULL,
-                nascimento DATE,
-                telefone TEXT,
-                email TEXT
-            )
-        """)
-        cursor.execute("""
-            CREATE TABLE IF NOT EXISTS prontuarios (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                paciente_id INTEGER,
-                texto TEXT,
-                FOREIGN KEY (paciente_id) REFERENCES pacientes(id) ON DELETE CASCADE
-            )
-        """)
-        cursor.execute("""
-            CREATE TABLE IF NOT EXISTS consultas (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                nome_paciente TEXT NOT NULL,
-                data DATE NOT NULL,
-                hora TIME NOT NULL
-            )
-        """)
-        conn.commit()
+        cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='pacientes'")
+        if cursor.fetchone() is None:
+            print("⚠️ Tabela 'pacientes' não encontrada. Criando tabelas...")
+            criar_tabelas(conn)
+        else:
+            print("✅ Tabela 'pacientes' encontrada.")
 
         return conn
+
     except Exception as e:
-        print(f"Erro ao conectar ao banco SQLite: {e}")
+        print(f"❌ Erro ao conectar ao banco de dados: {e}")
         return None

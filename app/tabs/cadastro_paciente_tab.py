@@ -4,7 +4,17 @@ from PyQt6.QtCore import Qt, QDate, QRegularExpression
 from PyQt6.QtGui import QRegularExpressionValidator
 from db import conectar
 from styles.styles import apply_button_style, apply_input_style, apply_date_edit_style, apply_label_style
-
+import sqlite3
+import os
+def conectar():
+    try:
+        # Caminho absoluto para psinote.db na raiz
+        caminho_banco = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'psinote.db'))
+        conn = sqlite3.connect(caminho_banco)
+        return conn
+    except Exception as e:
+        print(f"Erro ao conectar ao banco de dados: {e}")
+        return None
 
 class CadastroPacienteTab(QWidget):
     def __init__(self):
@@ -149,25 +159,26 @@ class CadastroPacienteTab(QWidget):
         if not self.validar_campos():
             return
 
-        dados = {
-            "nome": self.nome_input.text().strip(),
-            "nascimento": self.nascimento_input.date().toString("yyyy-MM-dd"),
-            "cpf": self.cpf_input.text().replace(".", "").replace("-", ""),
-            "telefone": self.telefone_input.text().replace("(", "").replace(")", "").replace(" ", "").replace("-", ""),
-            "endereco": self.endereco_input.text().strip(),
-            "email": self.email_input.text().strip()
-        }
+        dados = (
+            self.nome_input.text().strip(),
+            self.nascimento_input.date().toString("yyyy-MM-dd"),
+            self.cpf_input.text().replace(".", "").replace("-", ""),
+            self.telefone_input.text().replace("(", "").replace(")", "").replace(" ", "").replace("-", ""),
+            self.endereco_input.text().strip(),
+            self.email_input.text().strip()
+        )
 
         conn = None
         try:
             conn = conectar()
             if conn:
-                with conn.cursor() as cur:
-                    cur.execute("""
-                        INSERT INTO pacientes (nome, nascimento, cpf, telefone, endereco, email)
-                        VALUES (%(nome)s, %(nascimento)s, %(cpf)s, %(telefone)s, %(endereco)s, %(email)s)
-                    """, dados)
-                    conn.commit()
+                cur = conn.cursor()
+                cur.execute("""
+                    INSERT INTO pacientes (nome, nascimento, cpf, telefone, endereco, email)
+                    VALUES (?, ?, ?, ?, ?, ?)
+                """, dados)
+                conn.commit()
+                cur.close()
 
                 QMessageBox.information(
                     self, 

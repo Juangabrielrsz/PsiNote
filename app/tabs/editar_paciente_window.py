@@ -4,11 +4,14 @@ from PyQt6.QtWidgets import (
 )
 from PyQt6.QtCore import Qt
 import sqlite3
+import os
 
 
 def conectar():
     try:
-        conn = sqlite3.connect("psinote.db")  # Cria o arquivo se não existir
+        # Caminho absoluto da raiz do projeto
+        caminho_db = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "psinote.db"))
+        conn = sqlite3.connect(caminho_db)
         return conn
     except Exception as e:
         print(f"Erro ao conectar ao banco de dados: {e}")
@@ -88,7 +91,7 @@ class EditarPacienteWindow(QWidget):
                 cur.execute("""
                     SELECT nome, nascimento, cpf, telefone, endereco, email
                     FROM pacientes
-                    WHERE id = %s
+                    WHERE id = ?
                 """, (self.paciente_id,))
                 paciente = cur.fetchone()
                 if paciente:
@@ -111,8 +114,8 @@ class EditarPacienteWindow(QWidget):
                 cur = conn.cursor()
                 cur.execute("""
                     UPDATE pacientes
-                    SET nome = %s, nascimento = %s, cpf = %s, telefone = %s, endereco = %s, email = %s
-                    WHERE id = %s
+                    SET nome = ?, nascimento = ?, cpf = ?, telefone = ?, endereco = ?, email = ?
+                    WHERE id = ?
                 """, (
                     self.nome_input.text(),
                     self.nascimento_input.text(),
@@ -144,7 +147,7 @@ class EditarPacienteWindow(QWidget):
             if conn:
                 try:
                     cur = conn.cursor()
-                    cur.execute("DELETE FROM pacientes WHERE id = %s", (self.paciente_id,))
+                    cur.execute("DELETE FROM pacientes WHERE id = ?", (self.paciente_id,))
                     conn.commit()
                     cur.close()
                     QMessageBox.information(self, "Sucesso", "Paciente excluído com sucesso!")

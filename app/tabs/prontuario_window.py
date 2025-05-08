@@ -9,13 +9,14 @@ from styles.styles import (
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import A4
 from datetime import datetime
-
 import sqlite3
-
+import os
 
 def conectar():
     try:
-        conn = sqlite3.connect("psinote.db")  # Cria o arquivo se não existir
+        # Caminho absoluto para psinote.db na raiz
+        caminho_banco = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'psinote.db'))
+        conn = sqlite3.connect(caminho_banco)
         return conn
     except Exception as e:
         print(f"Erro ao conectar ao banco de dados: {e}")
@@ -37,7 +38,6 @@ class ProntuarioWindow(QWidget):
         self.text_edit = QTextEdit()
         apply_text_edit_style(self.text_edit)
 
-        # Botões
         button_layout = QHBoxLayout()
 
         self.salvar_btn = QPushButton("Salvar Prontuário")
@@ -63,7 +63,7 @@ class ProntuarioWindow(QWidget):
         if conn:
             try:
                 cur = conn.cursor()
-                cur.execute("SELECT texto FROM prontuarios WHERE paciente_id = %s", (self.paciente_id,))
+                cur.execute("SELECT texto FROM prontuarios WHERE paciente_id = ?", (self.paciente_id,))
                 resultado = cur.fetchone()
                 if resultado:
                     self.text_edit.setText(resultado[0])
@@ -79,11 +79,17 @@ class ProntuarioWindow(QWidget):
         if conn:
             try:
                 cur = conn.cursor()
-                cur.execute("SELECT id FROM prontuarios WHERE paciente_id = %s", (self.paciente_id,))
+                cur.execute("SELECT id FROM prontuarios WHERE paciente_id = ?", (self.paciente_id,))
                 if cur.fetchone():
-                    cur.execute("UPDATE prontuarios SET texto = %s WHERE paciente_id = %s", (texto, self.paciente_id))
+                    cur.execute(
+                        "UPDATE prontuarios SET texto = ? WHERE paciente_id = ?",
+                        (texto, self.paciente_id)
+                    )
                 else:
-                    cur.execute("INSERT INTO prontuarios (paciente_id, texto) VALUES (%s, %s)", (self.paciente_id, texto))
+                    cur.execute(
+                        "INSERT INTO prontuarios (paciente_id, texto) VALUES (?, ?)",
+                        (self.paciente_id, texto)
+                    )
                 conn.commit()
                 QMessageBox.information(self, "Salvo", "Prontuário salvo com sucesso!")
                 cur.close()
@@ -98,7 +104,6 @@ class ProntuarioWindow(QWidget):
             QMessageBox.warning(self, "Vazio", "O prontuário está vazio.")
             return
 
-        # Selecionar local para salvar o arquivo
         nome_arquivo, _ = QFileDialog.getSaveFileName(
             self, "Salvar PDF", f"prontuario_{self.nome_paciente.replace(' ', '_')}.pdf", "PDF Files (*.pdf)"
         )
@@ -126,7 +131,6 @@ class ProntuarioWindow(QWidget):
                 c.drawString(50, y, linha)
                 y -= 20
 
-            # Rodapé da última página
             self._adicionar_rodape(c, width, page_number)
             c.save()
 
