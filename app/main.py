@@ -1,5 +1,4 @@
 import sys
-import os
 from PyQt6.QtWidgets import QApplication
 from windows.main_window import MainWindow
 from db import conectar
@@ -17,10 +16,8 @@ def verificar_ou_criar_tabelas():
     except Exception as e:
         print("⚠️ Tabela 'pacientes' não encontrada. Criando tabelas...")
         try:
-            with open("installer/criar_tabelas.sql", "r", encoding="utf-8") as f:
-                sql_script = f.read()
-                cursor.executescript(sql_script)
-                print("✅ Tabelas criadas com sucesso.")
+            from app.db import criar_tabelas
+            criar_tabelas(conn)
         except Exception as erro_sql:
             print(f"❌ Erro ao criar tabelas: {erro_sql}")
     finally:

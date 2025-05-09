@@ -20,9 +20,10 @@ CREATE TABLE IF NOT EXISTS prontuarios (
 -- Tabela de Consultas
 CREATE TABLE IF NOT EXISTS consultas (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    paciente_id INTEGER NOT NULL,
-    data TEXT NOT NULL,        -- Ex: '2025-05-06'
-    hora TEXT NOT NULL,        -- Ex: '14:30'
+    paciente_id INTEGER,
+    nome_paciente TEXT,
+    data TEXT,
+    hora TEXT,
     observacoes TEXT,
-    FOREIGN KEY (paciente_id) REFERENCES pacientes(id) ON DELETE CASCADE
+    FOREIGN KEY(paciente_id) REFERENCES pacientes(id)
 );

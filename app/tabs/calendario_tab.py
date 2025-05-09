@@ -1,7 +1,7 @@
 from PyQt6.QtWidgets import (
     QWidget, QVBoxLayout, QCalendarWidget, QPushButton, QDialog,
     QFormLayout, QLineEdit, QDialogButtonBox, QTimeEdit, QDateEdit,
-    QMessageBox, QListWidget, QHBoxLayout
+    QMessageBox, QListWidget, QHBoxLayout, QComboBox
 )
 from PyQt6.QtGui import QTextCharFormat, QColor
 from PyQt6.QtCore import QDate, QTime
@@ -10,10 +10,8 @@ import os
 
 def conectar():
     try:
-        # Caminho absoluto para psinote.db na raiz
         caminho_banco = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'psinote.db'))
-        conn = sqlite3.connect(caminho_banco)
-        return conn
+        return sqlite3.connect(caminho_banco)
     except Exception as e:
         print(f"Erro ao conectar ao banco de dados: {e}")
         return None
@@ -21,11 +19,10 @@ def conectar():
 class ModernCalendar(QWidget):
     def __init__(self):
         super().__init__()
-
         self.eventos_por_data = {}
 
         self.layout = QVBoxLayout()
-        self.calendar = QCalendarWidget(self)
+        self.calendar = QCalendarWidget()
         self.calendar.setGridVisible(True)
         self.calendar.setVerticalHeaderFormat(QCalendarWidget.VerticalHeaderFormat.NoVerticalHeader)
         self.calendar.setNavigationBarVisible(True)
@@ -55,7 +52,6 @@ class ModernCalendar(QWidget):
         self.layout.addWidget(self.calendar)
         self.layout.addWidget(self.consulta_btn)
         self.layout.addWidget(self.eventos_lista)
-
         self.setLayout(self.layout)
 
         self.carregar_consultas_do_banco()
@@ -94,15 +90,13 @@ class ModernCalendar(QWidget):
             try:
                 cur = conn.cursor()
                 cur.execute("SELECT nome_paciente, data, hora FROM consultas")
-                resultados = cur.fetchall()
-                for nome, data_str, hora_str in resultados:
+                for nome, data_str, hora_str in cur.fetchall():
                     qdate = QDate.fromString(data_str, "yyyy-MM-dd")
                     evento = f"{nome} às {hora_str}"
                     if qdate not in self.eventos_por_data:
                         self.eventos_por_data[qdate] = []
                     self.eventos_por_data[qdate].append(evento)
                     self.formatar_evento(qdate)
-                cur.close()
                 self.exibir_eventos_do_dia(QDate.currentDate())
             except Exception as e:
                 print(f"Erro ao carregar consultas: {e}")
@@ -113,6 +107,7 @@ class ModernCalendar(QWidget):
         dialog = AdicionarConsultaDialog(self)
         if dialog.exec():
             nome_paciente = dialog.nome_paciente
+            paciente_id = dialog.paciente_id
             data = dialog.data
             hora = dialog.hora
 
@@ -122,10 +117,11 @@ class ModernCalendar(QWidget):
             if conn:
                 try:
                     cur = conn.cursor()
-                    cur.execute("INSERT INTO consultas (nome_paciente, data, hora) VALUES (?, ?, ?)",
-                                (nome_paciente, data.toString("yyyy-MM-dd"), hora.toString("HH:mm")))
+                    cur.execute("""
+                        INSERT INTO consultas (paciente_id, nome_paciente, data, hora)
+                        VALUES (?, ?, ?, ?)
+                    """, (paciente_id, nome_paciente, data.toString("yyyy-MM-dd"), hora.toString("HH:mm")))
                     conn.commit()
-                    cur.close()
                     QMessageBox.information(self, "Consulta Adicionada", f"Consulta para {nome_paciente} adicionada.")
                 except Exception as e:
                     QMessageBox.critical(self, "Erro", f"Erro ao salvar no banco de dados: {e}")
@@ -135,13 +131,12 @@ class ModernCalendar(QWidget):
             if data not in self.eventos_por_data:
                 self.eventos_por_data[data] = []
             self.eventos_por_data[data].append(evento)
-
             self.formatar_evento(data)
             self.exibir_eventos_do_dia(data)
 
     def formatar_evento(self, data):
         format = QTextCharFormat()
-        format.setBackground(QColor("#87CEFA"))  # azul claro
+        format.setBackground(QColor("#87CEFA"))
         format.setForeground(QColor("#000000"))
         self.calendar.setDateTextFormat(data, format)
 
@@ -156,22 +151,18 @@ class ModernCalendar(QWidget):
     def editar_ou_excluir_evento(self, item):
         data = self.calendar.selectedDate()
         eventos = self.eventos_por_data.get(data, [])
-
         evento_str = item.text()
         if evento_str not in eventos:
             return
 
         nome, hora_str = evento_str.split(" às ")
         dialog = EditarConsultaDialog(nome, hora_str)
-        result = dialog.exec()
-
-        if result:
+        if dialog.exec():
             if dialog.deletar:
                 eventos.remove(evento_str)
             else:
                 novo_evento = f"{dialog.nome_editado} às {dialog.hora_editada.toString('HH:mm')}"
-                index = eventos.index(evento_str)
-                eventos[index] = novo_evento
+                eventos[eventos.index(evento_str)] = novo_evento
 
             if not eventos:
                 self.calendar.setDateTextFormat(data, QTextCharFormat())
@@ -179,15 +170,17 @@ class ModernCalendar(QWidget):
 
             self.exibir_eventos_do_dia(data)
 
-
 class AdicionarConsultaDialog(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setWindowTitle("Adicionar Consulta")
         self.layout = QFormLayout()
 
-        self.nome_paciente_input = QLineEdit()
-        self.layout.addRow("Nome do paciente:", self.nome_paciente_input)
+        self.pacientes_combo = QComboBox()
+        self.pacientes = self.carregar_pacientes()
+        for nome in self.pacientes:
+            self.pacientes_combo.addItem(nome)
+        self.layout.addRow("Paciente:", self.pacientes_combo)
 
         self.data_input = QDateEdit()
         self.data_input.setCalendarPopup(True)
@@ -198,22 +191,36 @@ class AdicionarConsultaDialog(QDialog):
         self.layout.addRow("Hora da consulta:", self.hora_input)
 
         self.buttons = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel)
-        self.layout.addWidget(self.buttons)
-
-        self.setLayout(self.layout)
-
         self.buttons.accepted.connect(self.accept)
         self.buttons.rejected.connect(self.reject)
+        self.layout.addWidget(self.buttons)
+        self.setLayout(self.layout)
+
+    def carregar_pacientes(self):
+        conn = conectar()
+        pacientes = {}
+        if conn:
+            try:
+                cur = conn.cursor()
+                cur.execute("SELECT id, nome FROM pacientes")
+                for paciente_id, nome in cur.fetchall():
+                    pacientes[nome] = paciente_id
+            except Exception as e:
+                QMessageBox.critical(self, "Erro", f"Erro ao carregar pacientes: {e}")
+            finally:
+                conn.close()
+        return pacientes
 
     def accept(self):
-        self.nome_paciente = self.nome_paciente_input.text()
+        nome = self.pacientes_combo.currentText()
+        if not nome:
+            QMessageBox.warning(self, "Campo obrigatório", "Por favor, selecione um paciente.")
+            return
+        self.nome_paciente = nome
+        self.paciente_id = self.pacientes[nome]
         self.data = self.data_input.date()
         self.hora = self.hora_input.time()
-        if not self.nome_paciente:
-            QMessageBox.warning(self, "Campo obrigatório", "Por favor, insira o nome do paciente.")
-            return
         super().accept()
-
 
 class EditarConsultaDialog(QDialog):
     def __init__(self, nome_paciente, hora_str, parent=None):
@@ -224,8 +231,7 @@ class EditarConsultaDialog(QDialog):
 
         layout = QFormLayout()
 
-        self.nome_input = QLineEdit()
-        self.nome_input.setText(nome_paciente)
+        self.nome_input = QLineEdit(nome_paciente)
         layout.addRow("Nome do paciente:", self.nome_input)
 
         self.hora_input = QTimeEdit()
