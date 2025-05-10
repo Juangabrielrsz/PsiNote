@@ -1,20 +1,9 @@
 from PyQt6.QtWidgets import (QWidget, QVBoxLayout, QLabel, QLineEdit, QPushButton, 
-                            QMessageBox, QDateEdit, QFormLayout)
+                             QMessageBox, QDateEdit, QFormLayout)
 from PyQt6.QtCore import Qt, QDate, QRegularExpression
 from PyQt6.QtGui import QRegularExpressionValidator
 from db import conectar
 from styles.styles import apply_button_style, apply_input_style, apply_date_edit_style, apply_label_style
-import sqlite3
-import os
-def conectar():
-    try:
-        # Caminho absoluto para psinote.db na raiz
-        caminho_banco = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'psinote.db'))
-        conn = sqlite3.connect(caminho_banco)
-        return conn
-    except Exception as e:
-        print(f"Erro ao conectar ao banco de dados: {e}")
-        return None
 
 class CadastroPacienteTab(QWidget):
     def __init__(self):
@@ -101,7 +90,6 @@ class CadastroPacienteTab(QWidget):
         self.limpar_btn.setCursor(Qt.CursorShape.PointingHandCursor)
 
     def setup_validators(self):
-        # Removido o validator do CPF para permitir a digitação completa
         self.cpf_input.textChanged.connect(self.formatar_cpf)
 
         email_validator = QRegularExpressionValidator(
