@@ -12,7 +12,7 @@ OutputBaseFilename=PsiNote_Installer
 [Files]
 Source: "dist\PsiNote.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "installer\recursos\icon.ico"; DestDir: "{app}"; Flags: ignoreversion
-Source: "app\psinote.db"; DestDir: "{app}"; Flags: ignoreversion
+Source: "app\psinote.db"; DestDir: "{app}\app"; Flags: ignoreversion
 Source: "installer\python\python-3.11.4-amd64.exe"; DestDir: "{tmp}"; Flags: ignoreversion
 
 [Icons]

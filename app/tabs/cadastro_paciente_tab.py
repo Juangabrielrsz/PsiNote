@@ -2,8 +2,19 @@ from PyQt6.QtWidgets import (QWidget, QVBoxLayout, QLabel, QLineEdit, QPushButto
                              QMessageBox, QDateEdit, QFormLayout)
 from PyQt6.QtCore import Qt, QDate, QRegularExpression
 from PyQt6.QtGui import QRegularExpressionValidator
-from db import conectar
 from styles.styles import apply_button_style, apply_input_style, apply_date_edit_style, apply_label_style
+import sqlite3
+import os
+
+def conectar():
+    try:
+        # Caminho absoluto da raiz do projeto
+        caminho_db = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "psinote.db"))
+        conn = sqlite3.connect(caminho_db)
+        return conn
+    except Exception as e:
+        print(f"Erro ao conectar ao banco de dados: {e}")
+        return None
 
 class CadastroPacienteTab(QWidget):
     def __init__(self):
