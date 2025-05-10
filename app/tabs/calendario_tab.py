@@ -1,9 +1,9 @@
 from PyQt6.QtWidgets import (
     QWidget, QVBoxLayout, QCalendarWidget, QPushButton, QDialog,
     QFormLayout, QLineEdit, QDialogButtonBox, QTimeEdit, QDateEdit,
-    QMessageBox, QListWidget, QHBoxLayout, QComboBox
+    QMessageBox, QListWidget, QHBoxLayout, QComboBox, QStyle
 )
-from PyQt6.QtGui import QTextCharFormat, QColor
+from PyQt6.QtGui import QTextCharFormat, QColor, QIcon
 from PyQt6.QtCore import QDate, QTime
 import sqlite3
 import os
@@ -30,7 +30,8 @@ class ModernCalendar(QWidget):
 
         self.apply_calendar_style(self.calendar)
 
-        self.consulta_btn = QPushButton("Adicionar Consulta")
+        self.consulta_btn = QPushButton(" Adicionar Consulta")
+        self.consulta_btn.setIcon(self.style().standardIcon(QStyle.StandardPixmap.SP_FileDialogNewFolder))
         self.consulta_btn.setStyleSheet("""
             QPushButton {
                 background-color: #4682B4;
@@ -239,8 +240,10 @@ class EditarConsultaDialog(QDialog):
         layout.addRow("Hora da consulta:", self.hora_input)
 
         botoes_layout = QHBoxLayout()
-        self.salvar_btn = QPushButton("Salvar")
-        self.excluir_btn = QPushButton("Excluir")
+        self.salvar_btn = QPushButton(" Salvar")
+        self.salvar_btn.setIcon(self.style().standardIcon(QStyle.StandardPixmap.SP_DialogApplyButton))
+        self.excluir_btn = QPushButton(" Excluir")
+        self.excluir_btn.setIcon(self.style().standardIcon(QStyle.StandardPixmap.SP_TrashIcon))
 
         botoes_layout.addWidget(self.salvar_btn)
         botoes_layout.addWidget(self.excluir_btn)
