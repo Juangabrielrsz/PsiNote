@@ -6,15 +6,11 @@ from PyQt6.QtCore import Qt
 from tabs.prontuario_window import ProntuarioWindow
 from tabs.editar_paciente_window import EditarPacienteWindow
 from styles.styles import apply_table_style
-import sqlite3
-import os
-
+from database import get_connection 
 
 def conectar():
     try:
-        # Caminho absoluto da raiz do projeto
-        caminho_db = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "psinote.db"))
-        conn = sqlite3.connect(caminho_db)
+        conn = get_connection()
         return conn
     except Exception as e:
         print(f"Erro ao conectar ao banco de dados: {e}")

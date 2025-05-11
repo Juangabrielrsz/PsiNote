@@ -1,15 +1,23 @@
-import sqlite3
 import os
+import sqlite3
 
-def conectar():
-    try:
-        # Caminho absoluto para o banco dentro da pasta app
-        base_dir = os.path.dirname(os.path.abspath(__file__))
-        db_path = os.path.join(base_dir, "psinote.db")
-        conn = sqlite3.connect(db_path)
-        print("✅ Conectado ao banco com sucesso!")
-        return conn
+def get_connection():
+    # Caminho do banco no diretório de dados do usuário
+    appdata_dir = os.path.join(os.getenv("APPDATA"), "PsiNote")
+    db_path = os.path.join(appdata_dir, "psinote.db")
 
-    except Exception as e:
-        print(f"❌ Erro ao conectar ao banco de dados: {e}")
-        return None
+    # Garante que o diretório existe
+    if not os.path.exists(appdata_dir):
+        os.makedirs(appdata_dir)
+
+    # Se o banco não existe, copie o banco da instalação
+    install_db_path = os.path.join(os.path.dirname(__file__), 'psinote.db')
+    if not os.path.exists(db_path):
+        if os.path.exists(install_db_path):
+            import shutil
+            shutil.copy(install_db_path, db_path)
+        else:
+            raise FileNotFoundError(f"Banco original não encontrado: {install_db_path}")
+
+    # Retorna a conexão com o banco do AppData
+    return sqlite3.connect(db_path)

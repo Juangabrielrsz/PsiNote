@@ -5,13 +5,12 @@ from PyQt6.QtWidgets import (
 )
 from PyQt6.QtGui import QTextCharFormat, QColor, QIcon
 from PyQt6.QtCore import QDate, QTime
-import sqlite3
-import os
+from database import get_connection 
 
 def conectar():
     try:
-        caminho_banco = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'psinote.db'))
-        return sqlite3.connect(caminho_banco)
+        conn = get_connection()
+        return conn
     except Exception as e:
         print(f"Erro ao conectar ao banco de dados: {e}")
         return None

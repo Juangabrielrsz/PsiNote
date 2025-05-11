@@ -9,14 +9,11 @@ from styles.styles import (
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import A4
 from datetime import datetime
-import sqlite3
-import os
+from database import get_connection 
 
 def conectar():
     try:
-        # Caminho absoluto para psinote.db na raiz
-        caminho_banco = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'psinote.db'))
-        conn = sqlite3.connect(caminho_banco)
+        conn = get_connection()
         return conn
     except Exception as e:
         print(f"Erro ao conectar ao banco de dados: {e}")

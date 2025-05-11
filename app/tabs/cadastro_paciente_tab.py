@@ -3,14 +3,11 @@ from PyQt6.QtWidgets import (QWidget, QVBoxLayout, QLabel, QLineEdit, QPushButto
 from PyQt6.QtCore import Qt, QDate, QRegularExpression
 from PyQt6.QtGui import QRegularExpressionValidator
 from styles.styles import apply_button_style, apply_input_style, apply_date_edit_style, apply_label_style
-import sqlite3
-import os
+from database import get_connection 
 
 def conectar():
     try:
-        # Caminho absoluto da raiz do projeto
-        caminho_db = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "psinote.db"))
-        conn = sqlite3.connect(caminho_db)
+        conn = get_connection()
         return conn
     except Exception as e:
         print(f"Erro ao conectar ao banco de dados: {e}")

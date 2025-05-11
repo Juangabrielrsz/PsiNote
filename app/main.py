@@ -1,33 +1,37 @@
+from PyQt6.QtWidgets import QApplication, QWidget, QLabel, QVBoxLayout
+from database import get_connection  
 import os
 import shutil
-import sqlite3
-from PyQt6.QtWidgets import QApplication, QWidget, QLabel, QVBoxLayout
-
-# Caminho do banco dentro do instalador
+# Caminho original (dentro da pasta do app instalado)
 INSTALL_DB_PATH = os.path.join(os.path.dirname(__file__), 'app', 'psinote.db')
 
-# Caminho seguro no AppData para uso com escrita
+# Caminho do banco no AppData
 APPDATA_DIR = os.path.join(os.getenv("APPDATA"), "PsiNote")
 USER_DB_PATH = os.path.join(APPDATA_DIR, "psinote.db")
 
-# Cria a pasta se necessário
+# Cria a pasta no AppData se não existir
 if not os.path.exists(APPDATA_DIR):
     os.makedirs(APPDATA_DIR)
 
-# Copia o banco apenas se ainda não existir no AppData
+# Copia o banco se ele ainda não estiver lá
 if not os.path.exists(USER_DB_PATH):
+    print("Copiando banco para o AppData...")
     shutil.copy(INSTALL_DB_PATH, USER_DB_PATH)
+else:
+    print("Banco já existe no AppData.")
 
-# Conecta ao banco de dados com permissão de escrita
-conn = sqlite3.connect(USER_DB_PATH)
-
-# Exemplo simples de janela (substitua com seu código real)
 class MainWindow(QWidget):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("PsiNote")
+        
+        conn = get_connection()  # Isso agora cuida da cópia e conexão do banco
+        cursor = conn.cursor()
+        cursor.execute("SELECT name FROM sqlite_master WHERE type='table'")
+        tables = cursor.fetchall()
+
         layout = QVBoxLayout()
-        label = QLabel(f"Banco carregado de:\n{USER_DB_PATH}")
+        label = QLabel(f"Tabelas no banco:\n{tables}")
         layout.addWidget(label)
         self.setLayout(layout)
 
